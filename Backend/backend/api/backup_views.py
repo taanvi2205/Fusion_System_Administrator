@@ -2,6 +2,7 @@ import os
 import subprocess
 import threading
 import time
+import uuid as _uuid
 from datetime import timedelta
 from pathlib import Path
 
@@ -171,9 +172,49 @@ def _run_restore(dump_path, restore_record_id):
 # ── views ───────────────────────────────────────────────────────────────────────
 
 
+def _sync_orphaned_backups():
+    """
+    Scan the backup folder for .dump files that have no matching
+    BackupRecord and create records for them so they appear in the UI.
+    """
+    cfg = _get_db_config()
+    existing_ids = set(
+        str(pk) for pk in BackupRecord.objects.values_list("id", flat=True)
+    )
+
+    for dump_file in BACKUP_DIR.glob("*.dump"):
+        file_uuid = dump_file.stem  # filename without extension
+        if file_uuid in existing_ids:
+            continue
+
+        # validate UUID format
+        try:
+            parsed = _uuid.UUID(file_uuid)
+        except ValueError:
+            continue
+
+        file_size = dump_file.stat().st_size
+        file_mtime = timezone.datetime.fromtimestamp(
+            dump_file.stat().st_mtime, tz=timezone.utc
+        )
+
+        record = BackupRecord.objects.create(
+            id=parsed,
+            db_name=cfg["name"],
+            status="success",
+            size_bytes=file_size,
+            file_path=str(dump_file),
+        )
+        # auto_now_add ignores values passed to create(), so update directly
+        BackupRecord.objects.filter(id=parsed).update(created_at=file_mtime)
+
+
 @api_view(["GET"])
 def list_backups(request):
     """List all backup records, optionally filtered by db_name."""
+    # sync orphaned dump files from the backup folder into the DB
+    _sync_orphaned_backups()
+
     db_name = request.GET.get("db_name")
     qs = BackupRecord.objects.all()
     if db_name:
@@ -634,6 +675,7 @@ def db_info(request):
     Return metadata about the configured databases.
     Currently just the default database from settings.
     """
+    _sync_orphaned_backups()
     cfg = _get_db_config()
 
     db_size = None
