@@ -1,4 +1,10 @@
-import axiosInstance from "../context/axiosInstance";
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_BACKEND_URL + '/api';
+
+const getPerformedBy = () => localStorage.getItem('adminUsername') || 'unknown';
+
+console.log(API_URL);
 
 export const createUser = async (userData) => {
   try {
@@ -15,11 +21,14 @@ export const createUser = async (userData) => {
 
 export const createStudent = async (userData) => {
   try {
-    const response = await axiosInstance.post("/users/add-student/", userData);
+    const response = await axiosInstance.post("/users/add-student/", {
+      ...userData,
+      performed_by: getPerformedBy(),
+    });
     return response.data;
   } catch (error) {
     console.error(
-      `Error creating student: ${error.response?.data || error.message}`,
+      `Error creating student: ${error.response?.data || error.message}`
     );
     throw error;
   }
@@ -27,12 +36,15 @@ export const createStudent = async (userData) => {
 
 export const createFaculty = async (userData) => {
   try {
-    const response = await axiosInstance.post("/users/add-faculty/", userData);
+    const response = await axiosInstance.post("/users/add-faculty/", {
+      ...userData,
+      performed_by: getPerformedBy(),
+    });
     return response.data;
   } catch (error) {
     console.error(
       "Error creating faculty:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     throw error;
   }
@@ -40,12 +52,15 @@ export const createFaculty = async (userData) => {
 
 export const createStaff = async (userData) => {
   try {
-    const response = await axiosInstance.post("/users/add-staff/", userData);
+    const response = await axiosInstance.post("/users/add-staff/", {
+      ...userData,
+      performed_by: getPerformedBy(),
+    });
     return response.data;
   } catch (error) {
     console.error(
       "Error creating staff:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     throw error;
   }
@@ -53,15 +68,15 @@ export const createStaff = async (userData) => {
 
 export const resetPassword = async (userData) => {
   try {
-    const response = await axiosInstance.post(
-      "/users/reset_password/",
-      userData,
-    );
+    const response = await axiosInstance.post("/users/reset_password/", {
+      ...userData,
+      performed_by: getPerformedBy(),
+    });
     return response.data;
   } catch (error) {
     console.error(
       "Error resetting password:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     throw error;
   }
@@ -69,12 +84,13 @@ export const resetPassword = async (userData) => {
 
 export const bulkUploadUsers = async (userData) => {
   try {
+    userData.append("performed_by", getPerformedBy());
     const response = await axiosInstance.post("/users/import/", userData);
     return response.data;
   } catch (error) {
     console.error(
       "Error uploading users:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     throw error;
   }

@@ -17,6 +17,7 @@ import {
   FaHdd,
   FaClock,
 } from "react-icons/fa";
+import { FaUserAlt, FaClone, FaBook, FaSignOutAlt, FaUserGraduate, FaChalkboardTeacher, FaUsersCog, FaKey, FaUserShield, FaTasks, FaEdit, FaArchive as FaArchiveIcon, FaClipboardList } from "react-icons/fa";
 import { Tooltip, Flex, Modal, Button } from "@mantine/core";
 import { useAuth } from "../../context/AuthContext";
 
@@ -135,6 +136,13 @@ const Sidebar = () => {
           icon: <FaClock size={18} />,
         },
       ],
+    },
+    {
+      label: "Audit Log",
+      icon: <FaClipboardList size={24} />,
+      height: "10%",
+      isPrimary: true,
+      action: () => navigate("/AuditLog"),
     },
   ];
 
