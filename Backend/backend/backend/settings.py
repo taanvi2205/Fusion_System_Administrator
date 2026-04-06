@@ -112,8 +112,14 @@ DATABASES = {
         "PASSWORD": "hello123",
         "HOST": "localhost",
         "PORT": "5432",
+    },
+    "system_db": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+DATABASE_ROUTERS = ['backend.routers.SystemDBRouter']
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
