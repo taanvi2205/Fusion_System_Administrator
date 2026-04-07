@@ -107,11 +107,11 @@ WSGI_APPLICATION = "backend.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "fusionlab",
-        "USER": "fusion_admin",
-        "PASSWORD": "hello123",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": env("DB_NAME", default="fusionlab"),
+        "USER": env("DB_USER", default="postgres"),
+        "PASSWORD": env("DB_PASSWORD", default="postgres"),
+        "HOST": env("DB_HOST", default="localhost"),
+        "PORT": env("DB_PORT", default="5432"),
     },
     "system_db": {
         "ENGINE": "django.db.backends.sqlite3",
