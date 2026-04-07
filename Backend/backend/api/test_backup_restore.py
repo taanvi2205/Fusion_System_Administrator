@@ -45,9 +45,18 @@ class BackupRestoreTests(APITestCase):
         self.mock_thread = self.patcher_thread.start()
         
         # Setup run_backup/run_restore execution immediately instead of threading
-        def side_effect_run_backup(target, args, daemon):
-             target(*args)
-             return MagicMock()
+        def side_effect_run_backup(*thread_args, **thread_kwargs):
+             target = thread_kwargs.get('target')
+             target_args = thread_kwargs.get('args', ())
+
+             if target is None and thread_args:
+                 target = thread_args[0]
+             if 'args' not in thread_kwargs and len(thread_args) > 1:
+                 target_args = thread_args[1]
+
+             mock_thread_instance = MagicMock()
+             mock_thread_instance.start.side_effect = lambda: target(*target_args)
+             return mock_thread_instance
         self.mock_thread.side_effect = side_effect_run_backup
 
     def tearDown(self):
