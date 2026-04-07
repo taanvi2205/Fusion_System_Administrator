@@ -33,7 +33,6 @@ def _do_backup(db_name: str, schedule_id: str):
     # Import here to avoid circular imports at module load time
     import os
     import subprocess
-    import uuid as _uuid
 
     from .backup_views import BACKUP_DIR, _get_db_config, _pg_env
     from .models import BackupRecord, BackupSchedule
