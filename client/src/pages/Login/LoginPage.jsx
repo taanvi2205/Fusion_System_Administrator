@@ -9,8 +9,9 @@ const LoginPage = () => {
   const form = useForm({
     initialValues: { email: "", password: "" },
     validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
-      password: (value) => (value.length >= 6 ? null : "Password must be at least 6 characters"),
+      email: (value) => (value.length > 0 ? null : "Username is required"),
+      password: (value) =>
+        value.length >= 6 ? null : "Password must be at least 6 characters",
     },
   });
 
@@ -34,7 +35,12 @@ const LoginPage = () => {
       <Title align="center">Welcome back!</Title>
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
         <form onSubmit={form.onSubmit(onLogin)}>
-          <TextInput label="Email" placeholder="Your Email" {...form.getInputProps("email")} required />
+          <TextInput
+            label="Username"
+            placeholder="Your Username"
+            {...form.getInputProps("email")}
+            required
+          />
           <TextInput
             label="Password"
             placeholder="Your password"
