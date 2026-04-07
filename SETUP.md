@@ -34,12 +34,13 @@ cd Fusion_System_Administrator
 ## 2. PostgreSQL — Create the Database and User
 
 Open the **psql** shell. You can find it in the Start Menu under **PostgreSQL → SQL Shell (psql)**.  
-Press Enter to accept defaults for host/port/dbname, then enter your `postgres` password.
+Press Enter to accept defaults for host/port/dbname, then enter your `postgres` password.  
+Choose your own database username and a strong password instead of using a shared example value.
 
 ```sql
-CREATE USER fusion_admin WITH PASSWORD 'hello123';
-CREATE DATABASE fusionlab OWNER fusion_admin;
-GRANT ALL PRIVILEGES ON DATABASE fusionlab TO fusion_admin;
+CREATE USER <DB_USER> WITH PASSWORD '<DB_PASSWORD>';
+CREATE DATABASE fusionlab OWNER <DB_USER>;
+GRANT ALL PRIVILEGES ON DATABASE fusionlab TO <DB_USER>;
 \q
 ```
 
