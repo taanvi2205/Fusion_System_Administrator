@@ -1,11 +1,8 @@
-import axios from "axios";
-
-const API_URL =
-  (import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8000") + "/api";
+import axiosInstance from "../context/axiosInstance";
 
 export const fetchDatabases = async () => {
   try {
-    const response = await axios.get(`${API_URL}/db-info/`);
+    const response = await axiosInstance.get("/db-info/");
     return response.data;
   } catch (error) {
     console.error(
@@ -19,7 +16,7 @@ export const fetchDatabases = async () => {
 export const fetchBackups = async (dbName) => {
   try {
     const params = dbName ? { db_name: dbName } : {};
-    const response = await axios.get(`${API_URL}/backups/`, { params });
+    const response = await axiosInstance.get("/backups/", { params });
     return response.data;
   } catch (error) {
     console.error(
@@ -32,7 +29,7 @@ export const fetchBackups = async (dbName) => {
 
 export const createBackup = async (dbName) => {
   try {
-    const response = await axios.post(`${API_URL}/backups/create/`, {
+    const response = await axiosInstance.post("/backups/create/", {
       db_name: dbName,
     });
     return response.data;
@@ -47,7 +44,7 @@ export const createBackup = async (dbName) => {
 
 export const getBackupStatus = async (backupId) => {
   try {
-    const response = await axios.get(`${API_URL}/backups/${backupId}/`);
+    const response = await axiosInstance.get(`/backups/${backupId}/`);
     return response.data;
   } catch (error) {
     console.error(
@@ -60,9 +57,7 @@ export const getBackupStatus = async (backupId) => {
 
 export const deleteBackup = async (backupId) => {
   try {
-    const response = await axios.delete(
-      `${API_URL}/backups/${backupId}/delete/`,
-    );
+    const response = await axiosInstance.delete(`/backups/${backupId}/delete/`);
     return response.data;
   } catch (error) {
     console.error(
@@ -75,9 +70,7 @@ export const deleteBackup = async (backupId) => {
 
 export const restoreBackup = async (backupId) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/backups/${backupId}/restore/`,
-    );
+    const response = await axiosInstance.post(`/backups/${backupId}/restore/`);
     return response.data;
   } catch (error) {
     console.error(
@@ -91,7 +84,7 @@ export const restoreBackup = async (backupId) => {
 export const fetchHealthChecks = async (dbName) => {
   try {
     const params = dbName ? { db_name: dbName } : {};
-    const response = await axios.get(`${API_URL}/health-checks/`, { params });
+    const response = await axiosInstance.get("/health-checks/", { params });
     return response.data;
   } catch (error) {
     console.error(
@@ -104,7 +97,7 @@ export const fetchHealthChecks = async (dbName) => {
 
 export const runHealthCheck = async (dbName) => {
   try {
-    const response = await axios.post(`${API_URL}/health-checks/run/`, {
+    const response = await axiosInstance.post("/health-checks/run/", {
       db_name: dbName,
     });
     return response.data;
@@ -120,7 +113,7 @@ export const runHealthCheck = async (dbName) => {
 export const fetchSchedules = async (dbName) => {
   try {
     const params = dbName ? { db_name: dbName } : {};
-    const response = await axios.get(`${API_URL}/schedules/`, { params });
+    const response = await axiosInstance.get("/schedules/", { params });
     return response.data;
   } catch (error) {
     console.error(
@@ -133,10 +126,7 @@ export const fetchSchedules = async (dbName) => {
 
 export const saveSchedule = async (scheduleData) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/schedules/save/`,
-      scheduleData,
-    );
+    const response = await axiosInstance.post("/schedules/save/", scheduleData);
     return response.data;
   } catch (error) {
     console.error(
@@ -149,8 +139,8 @@ export const saveSchedule = async (scheduleData) => {
 
 export const toggleSchedule = async (scheduleId) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/schedules/${scheduleId}/toggle/`,
+    const response = await axiosInstance.post(
+      `/schedules/${scheduleId}/toggle/`,
     );
     return response.data;
   } catch (error) {
@@ -164,8 +154,8 @@ export const toggleSchedule = async (scheduleId) => {
 
 export const deleteSchedule = async (scheduleId) => {
   try {
-    const response = await axios.delete(
-      `${API_URL}/schedules/${scheduleId}/delete/`,
+    const response = await axiosInstance.delete(
+      `/schedules/${scheduleId}/delete/`,
     );
     return response.data;
   } catch (error) {
@@ -179,8 +169,8 @@ export const deleteSchedule = async (scheduleId) => {
 
 export const previewNextRuns = async (scheduleData) => {
   try {
-    const response = await axios.post(
-      `${API_URL}/schedules/preview/`,
+    const response = await axiosInstance.post(
+      "/schedules/preview/",
       scheduleData,
     );
     return response.data;
@@ -196,7 +186,7 @@ export const previewNextRuns = async (scheduleData) => {
 export const fetchRestores = async (dbName) => {
   try {
     const params = dbName ? { db_name: dbName } : {};
-    const response = await axios.get(`${API_URL}/restores/`, { params });
+    const response = await axiosInstance.get("/restores/", { params });
     return response.data;
   } catch (error) {
     console.error(
@@ -209,7 +199,7 @@ export const fetchRestores = async (dbName) => {
 
 export const getRestoreStatus = async (restoreId) => {
   try {
-    const response = await axios.get(`${API_URL}/restores/${restoreId}/`);
+    const response = await axiosInstance.get(`/restores/${restoreId}/`);
     return response.data;
   } catch (error) {
     console.error(

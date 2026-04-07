@@ -1,11 +1,8 @@
-import axios from "axios";
-
-const API_URL =
-  (import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8000") + "/api";
+import axiosInstance from "../context/axiosInstance";
 
 export const createCustomRole = async (roleData) => {
   try {
-    const response = await axios.post(API_URL + "/create-role/", roleData);
+    const response = await axiosInstance.post("/create-role/", roleData);
     return response.data;
   } catch (error) {
     console.error(
@@ -18,7 +15,7 @@ export const createCustomRole = async (roleData) => {
 
 export const getAllRoles = async () => {
   try {
-    const response = await axios.get(API_URL + "/view-roles/");
+    const response = await axiosInstance.get("/view-roles/");
     return response.data;
   } catch (error) {
     console.error(
@@ -31,8 +28,8 @@ export const getAllRoles = async () => {
 
 export const getAllDesignations = async (designationType) => {
   try {
-    const response = await axios.post(
-      API_URL + "/view-designations/",
+    const response = await axiosInstance.post(
+      "/view-designations/",
       designationType,
     );
     return response.data;
@@ -46,10 +43,8 @@ export const getAllDesignations = async (designationType) => {
 };
 
 export const getAllDepartments = async () => {
-  console.log(API_URL);
-  console.log("yoooooooooooooooooooooooooooooooooooooooooooo12121212");
   try {
-    const response = await axios.get(API_URL + "/departments/");
+    const response = await axiosInstance.get("/departments/");
     return response.data;
   } catch (error) {
     console.error(
@@ -62,7 +57,7 @@ export const getAllDepartments = async () => {
 
 export const getAllBatches = async () => {
   try {
-    const response = await axios.get(API_URL + "/batches/");
+    const response = await axiosInstance.get("/batches/");
     return response.data;
   } catch (error) {
     console.error(

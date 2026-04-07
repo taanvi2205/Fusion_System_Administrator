@@ -10,7 +10,13 @@ from django.conf import settings
 from django.db import connection
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import BackupRecord, BackupSchedule, HealthCheck, RestoreRecord
@@ -21,9 +27,9 @@ BACKUP_DIR = Path(settings.BASE_DIR) / "backups"
 BACKUP_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def _get_db_config():
+def _get_db_config(db_alias="default"):
     """Pull the database credentials from Django settings."""
-    db = settings.DATABASES["default"]
+    db = settings.DATABASES[db_alias]
     return {
         "name": db["NAME"],
         "user": db["USER"],
@@ -45,8 +51,8 @@ def _pg_env(cfg):
 
 def _run_backup(record_id):
     """Run pg_dump in a background thread and update the BackupRecord."""
-    cfg = _get_db_config()
     record = BackupRecord.objects.get(id=record_id)
+    cfg = _get_db_config()
     dump_path = str(BACKUP_DIR / f"{record.id}.dump")
 
     cmd = [
@@ -60,7 +66,7 @@ def _run_backup(record_id):
         "-Fc",  # custom format, needed for pg_restore
         "-f",
         dump_path,
-        cfg["name"],
+        record.db_name,
     ]
 
     start = time.time()
@@ -145,7 +151,9 @@ def _run_restore(dump_path, restore_record_id):
             if stderr_message:
                 record.error_message = stderr_message[:2000]
             else:
-                record.error_message = f"pg_restore failed with exit code {result.returncode}."
+                record.error_message = (
+                    f"pg_restore failed with exit code {result.returncode}."
+                )
         else:
             record.status = "success"
             record.error_message = ""
@@ -215,6 +223,8 @@ def _sync_orphaned_backups():
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def list_backups(request):
     """List all backup records, optionally filtered by db_name."""
     # sync orphaned dump files from the backup folder into the DB
@@ -244,6 +254,8 @@ def list_backups(request):
 
 
 @api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def create_backup(request):
     """
     Kick off a new pg_dump backup in a background thread.
@@ -274,6 +286,8 @@ def create_backup(request):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_backup(request, backup_id):
     """Get a single backup record by ID (used for polling status)."""
     try:
@@ -298,6 +312,8 @@ def get_backup(request, backup_id):
 
 
 @api_view(["DELETE"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def delete_backup(request, backup_id):
     """Delete a backup record and its dump file from disk."""
     try:
@@ -325,6 +341,8 @@ def delete_backup(request, backup_id):
 
 
 @api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def restore_backup(request, backup_id):
     """
     Restore the database from a backup.
@@ -378,6 +396,8 @@ def restore_backup(request, backup_id):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_restore(request, restore_id):
     """Poll a single restore record by ID."""
     try:
@@ -391,6 +411,8 @@ def get_restore(request, restore_id):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def list_restores(request):
     """List restore records, optionally filtered by db_name."""
     db_name = request.GET.get("db_name")
@@ -421,11 +443,13 @@ def _serialize_restore(r):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def list_health_checks(request):
     """
-    Return health checks for the last 90 days.
-    Each day has at most one entry. Days with no entry are treated as 'no data'.
+    Return health check records for the last 90 days.
     Optionally filtered by db_name.
+    Returns matching rows as stored (not grouped/padded by day).
     """
     db_name = request.GET.get("db_name", _get_db_config()["name"])
     since = timezone.now() - timedelta(days=90)
@@ -448,6 +472,8 @@ def list_health_checks(request):
 
 
 @api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def run_health_check(request):
     """
     Run a health check right now: ping the database and record the result.
@@ -488,6 +514,8 @@ def run_health_check(request):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def list_schedules(request):
     """List all backup schedules."""
     schedules = BackupSchedule.objects.all()
@@ -495,6 +523,8 @@ def list_schedules(request):
 
 
 @api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def save_schedule(request):
     """
     Create or update a BackupSchedule for a given db_name.
@@ -566,6 +596,8 @@ def save_schedule(request):
 
 
 @api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def toggle_schedule(request, schedule_id):
     """Enable or disable a schedule without deleting it."""
     from . import scheduler as sched_module
@@ -590,6 +622,8 @@ def toggle_schedule(request, schedule_id):
 
 
 @api_view(["DELETE"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def delete_schedule(request, schedule_id):
     """Delete a schedule and remove the APScheduler job."""
     from . import scheduler as sched_module
@@ -607,6 +641,8 @@ def delete_schedule(request, schedule_id):
 
 
 @api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def preview_next_runs(request):
     """
     Given schedule params, return the next 5 scheduled run times (preview only, nothing saved).
@@ -672,6 +708,8 @@ def _serialize_schedule(s):
 
 
 @api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def db_info(request):
     """
     Return metadata about the configured databases.

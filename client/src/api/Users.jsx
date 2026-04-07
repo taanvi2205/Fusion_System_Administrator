@@ -1,13 +1,8 @@
-import axios from "axios";
-
-const API_URL =
-  (import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8000") + "/api";
-
-console.log(API_URL);
+import axiosInstance from "../context/axiosInstance";
 
 export const createUser = async (userData) => {
   try {
-    const response = await axios.post(API_URL + "/users/add/", userData);
+    const response = await axiosInstance.post("/users/add/", userData);
     return response.data;
   } catch (error) {
     console.error(
@@ -20,10 +15,7 @@ export const createUser = async (userData) => {
 
 export const createStudent = async (userData) => {
   try {
-    const response = await axios.post(
-      API_URL + "/users/add-student/",
-      userData,
-    );
+    const response = await axiosInstance.post("/users/add-student/", userData);
     return response.data;
   } catch (error) {
     console.error(
@@ -35,10 +27,7 @@ export const createStudent = async (userData) => {
 
 export const createFaculty = async (userData) => {
   try {
-    const response = await axios.post(
-      API_URL + "/users/add-faculty/",
-      userData,
-    );
+    const response = await axiosInstance.post("/users/add-faculty/", userData);
     return response.data;
   } catch (error) {
     console.error(
@@ -51,7 +40,7 @@ export const createFaculty = async (userData) => {
 
 export const createStaff = async (userData) => {
   try {
-    const response = await axios.post(API_URL + "/users/add-staff/", userData);
+    const response = await axiosInstance.post("/users/add-staff/", userData);
     return response.data;
   } catch (error) {
     console.error(
@@ -64,8 +53,8 @@ export const createStaff = async (userData) => {
 
 export const resetPassword = async (userData) => {
   try {
-    const response = await axios.post(
-      API_URL + "/users/reset_password/",
+    const response = await axiosInstance.post(
+      "/users/reset_password/",
       userData,
     );
     return response.data;
@@ -80,7 +69,7 @@ export const resetPassword = async (userData) => {
 
 export const bulkUploadUsers = async (userData) => {
   try {
-    const response = await axios.post(API_URL + "/users/import/", userData);
+    const response = await axiosInstance.post("/users/import/", userData);
     return response.data;
   } catch (error) {
     console.error(
@@ -93,7 +82,7 @@ export const bulkUploadUsers = async (userData) => {
 
 export const downloadSampleCSV = async () => {
   try {
-    const response = await axios.get(API_URL + "/download-sample-csv", {
+    const response = await axiosInstance.get("/download-sample-csv", {
       responseType: "blob",
     });
 
@@ -117,7 +106,9 @@ export const downloadSampleCSV = async () => {
 
 export const fetchUsersByType = async (type) => {
   try {
-    const response = await axios.get(`${API_URL}/users?type=${type}`);
+    const response = await axiosInstance.get("/users", {
+      params: { type },
+    });
     return response.data;
   } catch (error) {
     console.error(
