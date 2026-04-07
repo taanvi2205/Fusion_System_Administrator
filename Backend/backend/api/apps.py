@@ -18,9 +18,9 @@ class ApiConfig(AppConfig):
         try:
             # Guard against running during migrate/makemigrations when tables
             # may not exist yet
-            from django.db import connection
+            from django.db import connections
 
-            existing = connection.introspection.table_names()
+            existing = connections["system_db"].introspection.table_names()
             required = {"backup_schedules", "django_apscheduler_djangojob"}
             if not required.issubset(set(existing)):
                 return
