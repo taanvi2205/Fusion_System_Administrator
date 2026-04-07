@@ -235,7 +235,7 @@ def list_backups(request):
                 "status": b.status,
                 "size_bytes": b.size_bytes,
                 "duration_ms": b.duration_ms,
-                "file_path": b.file_path,
+                "file_name": Path(b.file_path).name if b.file_path else None,
                 "error_message": b.error_message,
             }
         )
