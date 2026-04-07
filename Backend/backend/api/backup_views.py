@@ -613,9 +613,6 @@ def preview_next_runs(request):
     """
     import datetime
 
-    from apscheduler.triggers.cron import CronTrigger
-    from apscheduler.util import datetime_to_utc_timestamp
-
     frequency = request.data.get("frequency", "daily")
     hour = int(request.data.get("hour", 2))
     minute = int(request.data.get("minute", 0))
